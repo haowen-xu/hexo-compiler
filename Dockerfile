@@ -2,6 +2,7 @@ FROM node:latest
 LABEL maintainer="Haowen Xu <haowen-xu@outlook.com>"
 
 ARG DEBIAN_MIRROR=deb.debian.org
+ARG PANDOC_DEB=https://github.com/jgm/pandoc/releases/download/2.7.2/pandoc-2.7.2-1-amd64.deb
 
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
@@ -13,7 +14,12 @@ RUN sed -i "s/deb.debian.org/${DEBIAN_MIRROR}/g" /etc/apt/sources.list && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         locales tzdata ca-certificates openssh-client openssl \
         tar wget git mercurial build-essential python-dev python-pip \
-        pandoc \
     && \
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+    /usr/sbin/locale-gen && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+RUN wget -O /tmp/pandoc.deb "${PANDOC_DEB}" && \
+    dpkg -i /tmp/pandoc.deb && \
+    rm /tmp/pandoc.deb
